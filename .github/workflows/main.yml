@@ -1,22 +1,22 @@
-# description of this workflow, can be anything you want
-name: Package and release
+name: Release AddOn
 
-# we need to let GitHub know _when_ we want to release, typically only when we create a new tag.
-# this will target only tags, and not all pushes to the master branch.
-# this part can be heavily customized to your liking, like targeting only tags that match a certain word,
-# other branches or even pullrequests.
 on:
   push:
-    branches: [ main ]
-    tags: [ '*' ]
+    branches:
+      - [ 'main' ]
+    tags:
+      - '**'
 
-# a workflow is built up as jobs, and within these jobs are steps
+env:
+  CF_API_KEY: ${{ secrets.CF_API_KEY }}
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Package
-        uses: BigWigsMods/packager@master
-        env:
-           CF_API_KEY: ${{ secrets.CF_API_KEY }}
-           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: BigWigsMods/packager@v2
