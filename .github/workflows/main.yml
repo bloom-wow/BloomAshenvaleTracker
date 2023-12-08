@@ -10,19 +10,13 @@ on:
     branches: [ main ]
     tags: [ '*' ]
 
-# specify the environment variables used by the packager, matching the secrets from the project on GitHub
-env:
-  CF_API_KEY: ${{ secrets.CF_API_KEY }}
-  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}  # "GITHUB_TOKEN" is a secret always provided to the workflow
-                                              # for your own token, the name cannot start with "GITHUB_"
-
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
-  # "release" is a job, you can name it anything you want
-  release:
-    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
+  build:
     runs-on: ubuntu-latest
-    # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
       - name: Create Package
         uses: BigWigsMods/packager@master
+        env:
+           CF_API_KEY: ${{ secrets.CF_API_KEY }}
+           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
