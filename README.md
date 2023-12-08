@@ -29,3 +29,8 @@
 ### Conclusion
 
 Whether you're deeply involved in the Season of Discovery events or just passing through Ashenvale, **BloomAshenvaleTracker** is your essential companion, keeping you informed and connected. Enhance your gameplay and stay one step ahead in the world of Azeroth!
+
+
+### Dependencies
+
+NovaWorldBuffs
