@@ -4,5 +4,6 @@
 ## Author: Bloom
 ## Version: 1.0
 ## SavedVariables: BloomAshenvaleTrackerDB
-##Dependencies: NovaWorldBuffs
+## Dependencies: NovaWorldBuffs
+## X-Curse-Project-ID: 948016
 BloomAshenvaleTracker.lua
