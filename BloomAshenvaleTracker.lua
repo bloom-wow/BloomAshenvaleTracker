@@ -46,8 +46,11 @@ local function UpdateFrame()
     for layer, info in pairs(layerInfo) do
         if layer and layer ~= 0 then
             local timeDiff = time() - info.lastUpdated
-            local timeString = timeDiff < 60 and string.format("%d sec ago", timeDiff) or string.format("%d min ago", math.floor(timeDiff / 60))
-            displayText = displayText .. string.format("Layer %s: Alliance: %s, Horde: %s (%s)\n", layer, info.allianceProgress, info.hordeProgress, timeString)
+            local timeString = timeDiff < 60 and string.format("%d sec ago", timeDiff) or
+            string.format("%d min ago", math.floor(timeDiff / 60))
+            displayText = displayText ..
+            string.format("Layer %s: Alliance: %s, Horde: %s (%s)\n", layer, info.allianceProgress, info.hordeProgress,
+                timeString)
             frameHeight = frameHeight + 20
         end
     end
@@ -86,7 +89,8 @@ local function HandleAddonMessage(self, event, ...)
         if prefix == "BAT" then
             local allianceProgress, hordeProgress, layer = strsplit("|", message)
             if tonumber(layer) and layer ~= 0 then
-                layerInfo[layer] = { allianceProgress = allianceProgress, hordeProgress = hordeProgress, lastUpdated = time() }
+                layerInfo[layer] = { allianceProgress = allianceProgress, hordeProgress = hordeProgress, lastUpdated =
+                time() }
                 UpdateFrame()
             end
         end
@@ -107,7 +111,8 @@ SetupMainFrame(mainFrame)
 
 -- Register Addon
 local addonRegisteredSuccessfully = C_ChatInfo.RegisterAddonMessagePrefix("BAT")
-print(addonRegisteredSuccessfully and "BloomAshenvaleTracker started successfully!" or "BloomAshenvaleTracker failed to start successfully!")
+print(addonRegisteredSuccessfully and "BloomAshenvaleTracker started successfully!" or
+"BloomAshenvaleTracker failed to start successfully!")
 
 -- Event Handling
 local eventFrame = CreateFrame("Frame")
