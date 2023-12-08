@@ -7,8 +7,8 @@ name: Package and release
 # other branches or even pullrequests.
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    tags: [ '*' ]
 
 # specify the environment variables used by the packager, matching the secrets from the project on GitHub
 env:
@@ -24,11 +24,5 @@ jobs:
     runs-on: ubuntu-latest
     # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
-      # we first have to clone the AddOn project, this is a required step
-      - name: Clone project
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # gets entire git history, needed for automatic changelogs
-      # once cloned, we just run the GitHub Action for the packager project
-      - name: Package and release
-        uses: BigWigsMods/packager@v2
+      - name: Create Package
+        uses: BigWigsMods/packager@master
