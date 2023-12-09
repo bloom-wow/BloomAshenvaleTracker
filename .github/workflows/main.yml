@@ -1,4 +1,4 @@
-name: Release BloomAshenvaleTracker
+name: Release BloomAshenvaleTracker v1
 
 on:
   push:
