@@ -10,7 +10,7 @@ local settings = BloomAshenvaleTrackerSettings
 
 _G.BloomAshenvaleTrackerSettings = settings
 
-local layerInfo = {}
+BloomAshenvaleTrackerLayerInfo = {}
 local lastUpdateTime = 0
 local UPDATE_INTERVAL = 5
 local ASHENVALE_MAP_ID = 1440
@@ -21,9 +21,33 @@ local HORDE_WIDGET_ID = 5361
 local mainFrame = CreateFrame("Frame", "BloomAshenvaleTrackerMainFrame", UIParent, "BackdropTemplate")
 local contentText
 
+-- Create a clear button
+local clearButton = CreateFrame("Button", "BloomAshenvaleTrackerClearButton", mainFrame, "UIPanelButtonTemplate")
+clearButton:SetSize(80, 22)                                -- Width, Height
+clearButton:SetPoint("BOTTOM", mainFrame, "BOTTOM", 0, 10) -- Position it at the bottom of the mainFrame
+clearButton:SetText("Clear")
+clearButton:Hide()                                         -- Initially hide the button
+
+-- Function to update the visibility of the clear button
+UpdateClearButtonVisibility = function()
+    if settings.accountForLayers and next(BloomAshenvaleTrackerLayerInfo) ~= nil then
+        clearButton:Show()
+    else
+        clearButton:Hide()
+    end
+end
+
+local function ClearEntries()
+    wipe(BloomAshenvaleTrackerLayerInfo) -- Clears the BloomAshenvaleTrackerLayerInfo table
+    UpdateFrame()                        -- Update the frame to reflect the cleared data
+    UpdateClearButtonVisibility()        -- Update the visibility of the clear button
+end
+
+clearButton:SetScript("OnClick", ClearEntries)
+
 -- Local Function Definitions
 local function SetupMainFrame(frame)
-    frame:SetWidth(330)
+    frame:SetWidth(360)
     frame:SetPoint("CENTER")
     frame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -45,15 +69,15 @@ local function SetupMainFrame(frame)
 
     contentText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     contentText:SetPoint("CENTER", frame, "CENTER", 0, 0)
-    contentText:SetWidth(330)
+    contentText:SetWidth(350)
     contentText:SetJustifyH("CENTER")
     contentText:SetJustifyV("CENTER")
     contentText:SetText("")
 end
 
-local function UpdateFrame()
+function UpdateFrame()
     local displayText, frameHeight = "", 60
-    local info = settings.accountForLayers and layerInfo or {default = layerInfo["default"]}
+    local info = settings.accountForLayers and BloomAshenvaleTrackerLayerInfo or {default = BloomAshenvaleTrackerLayerInfo["default"]}
 
     for layer, layerData in pairs(info) do
         local timeString = date("%H:%M", layerData.lastUpdated)
@@ -100,12 +124,30 @@ local function SendProgress()
 end
 
 local function HandleAddonMessage(self, event, ...)
-    if event == "CHAT_MSG_ADDON" then
+    if event == "ADDON_LOADED" then
+        local addonName = ...
+        if addonName == "BloomAshenvaleTracker" then
+            -- Initialize or update settings from SavedVariables
+            BloomAshenvaleTrackerSettings = BloomAshenvaleTrackerSettings or {}
+            settings = BloomAshenvaleTrackerSettings
+
+            -- Initialize the settings UI
+            InitializeSettingsUI()
+
+            -- Update Clear Button visibility based on the loaded settings
+            UpdateClearButtonVisibility()
+
+            BloomAshenvaleTrackerLayerInfo = BloomAshenvaleTrackerLayerInfo or {}
+
+            -- Unregister the ADDON_LOADED event
+            self:UnregisterEvent("ADDON_LOADED")
+        end
+    elseif event == "CHAT_MSG_ADDON" then
         local prefix, message, sender = ...
         if prefix == "BAT" then
             local allianceProgress, hordeProgress, layer = strsplit("|", message)
             local layerKey = settings.accountForLayers and layer or "default"
-            layerInfo[layerKey] = {
+            BloomAshenvaleTrackerLayerInfo[layerKey] = {
                 allianceProgress = allianceProgress,
                 hordeProgress = hordeProgress,
                 lastUpdated = time()
@@ -135,6 +177,7 @@ print(addonRegisteredSuccessfully and "BloomAshenvaleTracker started successfull
 
 -- Event Handling
 local eventFrame = CreateFrame("Frame")
+eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("CHAT_MSG_ADDON")
 eventFrame:SetScript("OnEvent", HandleAddonMessage)
 
