@@ -93,8 +93,7 @@ local function HandleAddonMessage(self, event, ...)
                 layerInfo[layer] = {
                     allianceProgress = allianceProgress,
                     hordeProgress = hordeProgress,
-                    lastUpdated =
-                        time()
+                    lastUpdated = time()
                 }
                 UpdateFrame()
             end
