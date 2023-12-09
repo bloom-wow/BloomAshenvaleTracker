@@ -53,29 +53,27 @@ end
 
 local function UpdateFrame()
     local displayText, frameHeight = "", 60
-    for layer, info in pairs(layerInfo) do
-        local timeDiff = time() - info.lastUpdated
-        local timeString = timeDiff < 60 and string.format("%d sec ago", timeDiff) or
-            string.format("%d min ago", math.floor(timeDiff / 60))
+    local info = settings.accountForLayers and layerInfo or {default = layerInfo["default"]}
+
+    for layer, layerData in pairs(info) do
+        local timeString = date("%H:%M", layerData.lastUpdated)
 
         if settings.accountForLayers then
-            -- Display layer information when layer accounting is enabled
             displayText = displayText ..
-                string.format("Layer %s: Alliance: %s, Horde: %s (%s)\n",
-                    tostring(layer), info.allianceProgress, info.hordeProgress, timeString)
+                string.format("Layer %s: Alliance: %s, Horde: %s (Updated: %s)\n",
+                    tostring(layer), layerData.allianceProgress, layerData.hordeProgress, timeString)
         else
-            -- Display only faction progress and update time when layer accounting is disabled
-            displayText = displayText ..
-                string.format("Alliance: %s, Horde: %s (%s)\n",
-                    info.allianceProgress, info.hordeProgress, timeString)
+            displayText = string.format("Alliance: %s, Horde: %s (Updated: %s)\n",
+                layerData.allianceProgress, layerData.hordeProgress, timeString)
+            break  -- Break after the first iteration as we only need one entry
         end
 
         frameHeight = frameHeight + 20
     end
+
     mainFrame:SetHeight(frameHeight)
     contentText:SetText(displayText)
 end
-
 
 local function UpdateTimeDisplay()
     if time() - lastUpdateTime >= UPDATE_INTERVAL then
@@ -106,17 +104,13 @@ local function HandleAddonMessage(self, event, ...)
         local prefix, message, sender = ...
         if prefix == "BAT" then
             local allianceProgress, hordeProgress, layer = strsplit("|", message)
-            -- Process the message if layer accounting is disabled or if the layer is not 0
-            if not settings.accountForLayers or (tonumber(layer) and layer ~= 0) then
-                -- Use a default key (e.g., "default") when layer accounting is disabled
-                local layerKey = settings.accountForLayers and layer or 0
-                layerInfo[layerKey] = {
-                    allianceProgress = allianceProgress,
-                    hordeProgress = hordeProgress,
-                    lastUpdated = time()
-                }
-                UpdateFrame()
-            end
+            local layerKey = settings.accountForLayers and layer or "default"
+            layerInfo[layerKey] = {
+                allianceProgress = allianceProgress,
+                hordeProgress = hordeProgress,
+                lastUpdated = time()
+            }
+            UpdateFrame()
         end
     end
 end
