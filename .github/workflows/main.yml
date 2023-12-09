@@ -1,4 +1,4 @@
-name: Release AddOn
+name: Release BloomAshenvaleTracker
 
 on:
   push:
