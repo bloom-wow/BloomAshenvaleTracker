@@ -1,5 +1,15 @@
 local BloomAshenvaleTracker = ...
 
+BloomAshenvaleTrackerSettings = BloomAshenvaleTrackerSettings or {}
+
+if BloomAshenvaleTrackerSettings.accountForLayers == nil then
+    BloomAshenvaleTrackerSettings.accountForLayers = false
+end
+
+local settings = BloomAshenvaleTrackerSettings
+
+_G.BloomAshenvaleTrackerSettings = settings
+
 local layerInfo = {}
 local lastUpdateTime = 0
 local UPDATE_INTERVAL = 5
@@ -44,20 +54,28 @@ end
 local function UpdateFrame()
     local displayText, frameHeight = "", 60
     for layer, info in pairs(layerInfo) do
-        if layer and layer ~= 0 then
-            local timeDiff = time() - info.lastUpdated
-            local timeString = timeDiff < 60 and string.format("%d sec ago", timeDiff) or
-                string.format("%d min ago", math.floor(timeDiff / 60))
+        local timeDiff = time() - info.lastUpdated
+        local timeString = timeDiff < 60 and string.format("%d sec ago", timeDiff) or
+            string.format("%d min ago", math.floor(timeDiff / 60))
+
+        if settings.accountForLayers then
+            -- Display layer information when layer accounting is enabled
             displayText = displayText ..
-                string.format("Layer %s: Alliance: %s, Horde: %s (%s)\n", layer, info.allianceProgress,
-                    info.hordeProgress,
-                    timeString)
-            frameHeight = frameHeight + 20
+                string.format("Layer %s: Alliance: %s, Horde: %s (%s)\n",
+                    tostring(layer), info.allianceProgress, info.hordeProgress, timeString)
+        else
+            -- Display only faction progress and update time when layer accounting is disabled
+            displayText = displayText ..
+                string.format("Alliance: %s, Horde: %s (%s)\n",
+                    info.allianceProgress, info.hordeProgress, timeString)
         end
+
+        frameHeight = frameHeight + 20
     end
     mainFrame:SetHeight(frameHeight)
     contentText:SetText(displayText)
 end
+
 
 local function UpdateTimeDisplay()
     if time() - lastUpdateTime >= UPDATE_INTERVAL then
@@ -69,17 +87,16 @@ end
 local function GetEventProgress()
     local allianceProgress = C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo(ALLIANCE_WIDGET_ID).text
     local hordeProgress = C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo(HORDE_WIDGET_ID).text
-    local layer = _G["NWB_CurrentLayer"] or 0
+    local layer = settings.accountForLayers and (_G["NWB_CurrentLayer"] or 0) or 0
     return allianceProgress, hordeProgress, layer
 end
 
 local function SendProgress()
     if C_Map.GetBestMapForUnit("player") == ASHENVALE_MAP_ID then
         local allianceProgress, hordeProgress, layer = GetEventProgress()
-        if layer and layer ~= 0 then
-            local message = string.format("%s|%s|%s", allianceProgress, hordeProgress, layer)
-            C_ChatInfo.SendAddonMessage("BAT", message, "GUILD")
-        end
+        -- Send layer info only if layers are accounted for
+        local message = string.format("%s|%s|%s", allianceProgress, hordeProgress, layer)
+        C_ChatInfo.SendAddonMessage("BAT", message, "GUILD")
     end
     UpdateFrame()
 end
@@ -89,8 +106,11 @@ local function HandleAddonMessage(self, event, ...)
         local prefix, message, sender = ...
         if prefix == "BAT" then
             local allianceProgress, hordeProgress, layer = strsplit("|", message)
-            if tonumber(layer) and layer ~= 0 then
-                layerInfo[layer] = {
+            -- Process the message if layer accounting is disabled or if the layer is not 0
+            if not settings.accountForLayers or (tonumber(layer) and layer ~= 0) then
+                -- Use a default key (e.g., "default") when layer accounting is disabled
+                local layerKey = settings.accountForLayers and layer or 0
+                layerInfo[layerKey] = {
                     allianceProgress = allianceProgress,
                     hordeProgress = hordeProgress,
                     lastUpdated = time()
@@ -101,7 +121,8 @@ local function HandleAddonMessage(self, event, ...)
     end
 end
 
-local function ToggleFrameAndUpdate(msg)
+
+local function ToggleFrameAndUpdate()
     if mainFrame:IsShown() then
         mainFrame:Hide()
     else

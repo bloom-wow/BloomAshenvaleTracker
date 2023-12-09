@@ -3,8 +3,9 @@
 ## Notes: Enhance your Ashenvale experience in WoW with this efficient addon. Get real-time updates on event progress, layer-specific information, and seamless guild communication, all through a user-friendly interface. Simply toggle with /bat to stay informed and ahead in the Season of Discovery!
 ## Author: Bloom
 ## Version: 1.0
-## SavedVariables: BloomAshenvaleTrackerDB
+## SavedVariables: BloomAshenvaleTrackerDB BloomAshenvaleTrackerSavedVars
 ## Dependencies: NovaWorldBuffs
 ## X-Curse-Project-ID: 948016
 
 BloomAshenvaleTracker.lua
+BloomAshenvaleTrackerSettings.lua
