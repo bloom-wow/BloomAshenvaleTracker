@@ -77,7 +77,8 @@ end
 
 function UpdateFrame()
     local displayText, frameHeight = "", 60
-    local info = settings.accountForLayers and BloomAshenvaleTrackerLayerInfo or {default = BloomAshenvaleTrackerLayerInfo["default"]}
+    local info = settings.accountForLayers and BloomAshenvaleTrackerLayerInfo or
+    { default = BloomAshenvaleTrackerLayerInfo["default"] }
 
     for layer, layerData in pairs(info) do
         local timeString = date("%H:%M", layerData.lastUpdated)
@@ -89,7 +90,7 @@ function UpdateFrame()
         else
             displayText = string.format("Alliance: %s, Horde: %s (Updated: %s)\n",
                 layerData.allianceProgress, layerData.hordeProgress, timeString)
-            break  -- Break after the first iteration as we only need one entry
+            break -- Break after the first iteration as we only need one entry
         end
 
         frameHeight = frameHeight + 20
@@ -157,6 +158,39 @@ local function HandleAddonMessage(self, event, ...)
     end
 end
 
+local function RemoveDuplicateZeroLayerEntries()
+    local entriesToRemove = {}
+
+    -- Iterate over all entries
+    for layer, layerData in pairs(BloomAshenvaleTrackerLayerInfo) do
+        -- Skip the 'default' layer
+        if layer ~= "default" then
+            -- Compare with other layers
+            for otherLayer, otherLayerData in pairs(BloomAshenvaleTrackerLayerInfo) do
+                -- Check if it's not the same layer and not the 'default' layer
+                if layer ~= otherLayer and otherLayer ~= "default" then
+                    -- Check if both layers have the same progress values
+                    if layerData.allianceProgress == otherLayerData.allianceProgress and
+                        layerData.hordeProgress == otherLayerData.hordeProgress then
+                        -- Mark layer 0 for removal if it's one of the duplicates
+                        if layer == "0" or otherLayer == "0" then
+                            entriesToRemove[layer == "0" and layer or otherLayer] = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Remove marked entries
+    for layer, _ in pairs(entriesToRemove) do
+        BloomAshenvaleTrackerLayerInfo[layer] = nil
+    end
+
+    -- Update the UI if necessary
+    UpdateFrame()
+end
+
 
 local function ToggleFrameAndUpdate()
     if mainFrame:IsShown() then
@@ -188,3 +222,4 @@ SlashCmdList["BLOOMASHENVALETRACKER"] = ToggleFrameAndUpdate
 -- Timers
 C_Timer.NewTicker(UPDATE_INTERVAL, UpdateTimeDisplay)
 C_Timer.NewTicker(UPDATE_INTERVAL * 2, SendProgress)
+C_Timer.NewTicker(UPDATE_INTERVAL * 3, RemoveDuplicateZeroLayerEntries)
