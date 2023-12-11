@@ -6,6 +6,18 @@ if BloomAshenvaleTrackerSettings.accountForLayers == nil then
     BloomAshenvaleTrackerSettings.accountForLayers = false
 end
 
+if BloomAshenvaleTrackerSettings.shareInGuild == nil then
+    BloomAshenvaleTrackerSettings.shareInGuild = true
+end
+
+if BloomAshenvaleTrackerSettings.shareInParty == nil then
+    BloomAshenvaleTrackerSettings.shareInParty = true
+end
+
+if BloomAshenvaleTrackerSettings.shareInRaid == nil then
+    BloomAshenvaleTrackerSettings.shareInRaid = true
+end
+
 local settings = BloomAshenvaleTrackerSettings
 
 _G.BloomAshenvaleTrackerSettings = settings
@@ -117,11 +129,22 @@ end
 local function SendProgress()
     if C_Map.GetBestMapForUnit("player") == ASHENVALE_MAP_ID then
         local allianceProgress, hordeProgress, layer = GetEventProgress()
-        -- Send layer info only if layers are accounted for
         local message = string.format("%s|%s|%s", allianceProgress, hordeProgress, layer)
-        C_ChatInfo.SendAddonMessage("BAT", message, "GUILD")
+
+        if BloomAshenvaleTrackerSettings.shareInGuild and IsInGuild() then
+            C_ChatInfo.SendAddonMessage("BAT", message, "GUILD")
+        end
+
+        if BloomAshenvaleTrackerSettings.shareInParty and IsInGroup(LE_PARTY_CATEGORY_HOME) and not IsInRaid(LE_PARTY_CATEGORY_HOME) then
+            C_ChatInfo.SendAddonMessage("BAT", message, "PARTY")
+        end
+
+        if BloomAshenvaleTrackerSettings.shareInRaid and IsInRaid(LE_PARTY_CATEGORY_HOME) then
+            C_ChatInfo.SendAddonMessage("BAT", message, "RAID")
+        end
+
+        UpdateFrame()
     end
-    UpdateFrame()
 end
 
 local function HandleAddonMessage(self, event, ...)
@@ -190,7 +213,6 @@ local function RemoveDuplicateZeroLayerEntries()
     -- Update the UI if necessary
     UpdateFrame()
 end
-
 
 local function ToggleFrameAndUpdate()
     if mainFrame:IsShown() then

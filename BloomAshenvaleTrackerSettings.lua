@@ -21,6 +21,20 @@ function InitializeSettingsUI()
         Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
     end
 
+    -- Add settings for sharing in Guild, Party, and Raid
+    local channels = {"Guild", "Party", "Raid"}
+    for _, channel in ipairs(channels) do
+        local variable = "shareIn" .. channel -- e.g., "shareInGuild"
+        local name = "Share in " .. channel -- e.g., "Share in Guild"
+        local tooltip = "Enable or disable sharing progress in " .. channel .. "."
+
+        local currentValue = BloomAshenvaleTrackerSettings[variable]
+
+        local setting = Settings.RegisterAddOnSetting(category, name, variable, type(currentValue), currentValue)
+        Settings.CreateCheckBox(category, setting, tooltip)
+        Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
+    end
+
     Settings.RegisterAddOnCategory(category)
 end
 
