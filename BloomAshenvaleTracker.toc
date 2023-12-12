@@ -1,6 +1,6 @@
 ## Interface: 11500
 ## Title: Bloom Ashenvale Tracker
-## Notes: Enhance your Ashenvale experience in WoW with this efficient addon. Get real-time updates on event progress, layer-specific information, and seamless guild communication, all through a user-friendly interface. Simply toggle with /bat to stay informed and ahead in the Season of Discovery!
+## Notes: Enhance your Ashenvale experience in WoW with this efficient addon. Get real-time updates on event progress.
 ## Author: Bloom
 ## Version: 1.0
 ## SavedVariables: BloomAshenvaleTrackerSettings BloomAshenvaleTrackerLayerInfo

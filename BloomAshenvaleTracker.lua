@@ -20,8 +20,6 @@ end
 
 local settings = BloomAshenvaleTrackerSettings
 
-_G.BloomAshenvaleTrackerSettings = settings
-
 BloomAshenvaleTrackerLayerInfo = {}
 local lastUpdateTime = 0
 local UPDATE_INTERVAL = 5
@@ -90,7 +88,7 @@ end
 function UpdateFrame()
     local displayText, frameHeight = "", 60
     local info = settings.accountForLayers and BloomAshenvaleTrackerLayerInfo or
-    { default = BloomAshenvaleTrackerLayerInfo["default"] }
+        { default = BloomAshenvaleTrackerLayerInfo["default"] }
 
     for layer, layerData in pairs(info) do
         local timeString = date("%H:%M", layerData.lastUpdated)

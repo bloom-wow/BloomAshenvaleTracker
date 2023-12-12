@@ -22,13 +22,17 @@ function InitializeSettingsUI()
     end
 
     -- Add settings for sharing in Guild, Party, and Raid
-    local channels = {"Guild", "Party", "Raid"}
+    local channels = { "Guild", "Party", "Raid" }
     for _, channel in ipairs(channels) do
         local variable = "shareIn" .. channel -- e.g., "shareInGuild"
-        local name = "Share in " .. channel -- e.g., "Share in Guild"
+        local name = "Share in " .. channel   -- e.g., "Share in Guild"
         local tooltip = "Enable or disable sharing progress in " .. channel .. "."
 
+        -- Ensure currentValue is a boolean
         local currentValue = BloomAshenvaleTrackerSettings[variable]
+        if type(currentValue) ~= "boolean" then
+            currentValue = true
+        end
 
         local setting = Settings.RegisterAddOnSetting(category, name, variable, type(currentValue), currentValue)
         Settings.CreateCheckBox(category, setting, tooltip)
